@@ -6,9 +6,10 @@ import Element as Ui exposing (rgb, rgba)
 import Element.Background as UiBack
 import Element.Font as Font
 import Element.Input as UIn
-import Emptiable exposing (Emptiable(..), fill, map, fillElseOnEmpty, filled)
+import Emptiable exposing (Emptiable(..), fill, fillElseOnEmpty, filled, map)
 import Html exposing (Html)
 import Linear exposing (Direction(..))
+import RecordWithoutConstructorFunction exposing (RecordWithoutConstructorFunction)
 import Scroll exposing (FocusGap, Scroll)
 import Stack exposing (Stacked)
 
@@ -18,9 +19,10 @@ import Stack exposing (Stacked)
 
 
 type alias CountersModel =
-    { counter0 : Int
-    , counter1 : Int
-    }
+    RecordWithoutConstructorFunction
+        { counter0 : Int
+        , counter1 : Int
+        }
 
 
 countersInitial : CountersModel
