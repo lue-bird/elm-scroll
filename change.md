@@ -6,6 +6,10 @@ moved `Scroll` from `emptiness-typed`
   - `only` name → `one`
   - `foldOnto` name → `foldFromOne`
   - `focusItem` name → `focusFill`
-      - to be consistent with `focus >> fill`
+      - consistent with `focus >> fill`
+  - `focusItemTry` name → `focusFilled`
+      - less confusing
+  - `focusDrag` name → `dragFocus`
+      - structure change, not change on focus
   - variant `FocusGap Never` expose
   - `fuzz`, `focusFilledFuzz` add

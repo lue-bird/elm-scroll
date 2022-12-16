@@ -9,11 +9,11 @@ module Scroll exposing
     , to, toGap
     , toEnd, toEndGap
     , toWhere
-    , focusDrag
+    , dragFocus
     , mirror
     , focusAlter, sideAlter
     , map, focusSidesMap
-    , focusItemTry
+    , focusFilled
     , foldFrom, fold, foldFromOne
     , toStack, toList
     , focusGapAdapt
@@ -56,7 +56,7 @@ Not what you were looking for? Check out [alternatives](#alternatives)
 @docs to, toGap
 @docs toEnd, toEndGap
 @docs toWhere
-@docs focusDrag
+@docs dragFocus
 
 
 ### alter
@@ -64,7 +64,7 @@ Not what you were looking for? Check out [alternatives](#alternatives)
 @docs mirror
 @docs focusAlter, sideAlter
 @docs map, focusSidesMap
-@docs focusItemTry
+@docs focusFilled
 
 
 ## transform
@@ -81,7 +81,7 @@ Not what you were looking for? Check out [alternatives](#alternatives)
 ## alternatives
 
   - [zwilias/elm-holey-zipper](https://package.elm-lang.org/packages/zwilias/elm-holey-zipper/latest).
-    unsafe; a bit cluttered; no `map (Location -> ...)`, `focusDrag`, `toNonEmptyList`, `sideAlter` (so no squeezing in multiple items, ...)
+    unsafe; a bit cluttered; no `map (Location -> ...)`, `dragFocus`, `toNonEmptyList`, `sideAlter` (so no squeezing in multiple items, ...)
   - [turboMaCk/non-empty-list-alias: `List.NonEmpty.Zipper`](https://dark.elm.dmy.fr/packages/turboMaCk/non-empty-list-alias/latest/List-NonEmpty-Zipper)
     complete; cluttered (for example `update` & `map`); some unintuitive names
   - [miyamoen/select-list](https://dark.elm.dmy.fr/packages/miyamoen/select-list/latest/SelectList)
@@ -91,12 +91,12 @@ Not what you were looking for? Check out [alternatives](#alternatives)
   - [STTR13/ziplist](https://dark.elm.dmy.fr/packages/STTR13/ziplist/latest/)
     navigation works; a bit cluttered; no `map (Location -> ...)`, `sideAlter` (so no squeezing in multiple items, ...)
   - [wernerdegroot/listzipper](https://dark.elm.dmy.fr/packages/wernerdegroot/listzipper/latest/List-Zipper)
-    navigation works; no `focusDrag`, `map (Location -> ...)`, `toNonEmptyList`
+    navigation works; no `dragFocus`, `map (Location -> ...)`, `toNonEmptyList`
   - [alexanderkiel/list-selection](https://dark.elm.dmy.fr/packages/alexanderkiel/list-selection/latest/List-Selection)
     & [NoRedInk/list-selection](https://dark.elm.dmy.fr/packages/NoRedInk/list-selection/latest/List-Selection)
     very incomplete, impossible to extract focused item safely; no navigation, insertion, `side`, ...
   - [jjant/elm-comonad-zipper](https://dark.elm.dmy.fr/packages/jjant/elm-comonad-zipper/latest/)
-    incomplete; no `focusDrag`, `toNonEmptyList`, `sideAlter` (so no squeezing in multiple items, ...)
+    incomplete; no `dragFocus`, `toNonEmptyList`, `sideAlter` (so no squeezing in multiple items, ...)
   - [guid75/ziplist](https://dark.elm.dmy.fr/packages/guid75/ziplist/latest/)
     extremely incomplete
   - [arowM/elm-reference: `Reference.List`](https://dark.elm.dmy.fr/packages/arowM/elm-reference/latest/Reference-List)
@@ -729,7 +729,7 @@ to location =
         case location of
             AtFocus ->
                 scroll
-                    |> focusItemTry
+                    |> focusFilled
                     |> Emptiable.emptyAdapt (\_ -> Possible)
 
             AtSide side_ sideIndex ->
@@ -1068,7 +1068,7 @@ toWhere ( side_, isFound ) =
     Scroll.one 0
         |> Scroll.sideAlter Down
             (\_ -> topBelow 1 [ 2, 3 ])
-        |> Scroll.focusDrag Down
+        |> Scroll.dragFocus Down
         |> Emptiable.mapFlat Scroll.toStack
     --> topBelow 3 [ 2, 0, 1 ]
     --: Emptiable (Stacked number_) Possibly
@@ -1076,7 +1076,7 @@ toWhere ( side_, isFound ) =
     Scroll.one 0
         |> Scroll.sideAlter Up
             (\_ -> topBelow 1 [ 2, 3 ])
-        |> Scroll.focusDrag Up
+        |> Scroll.dragFocus Up
         |> Emptiable.mapFlat Scroll.toStack
     --> topBelow 1 [ 0, 2, 3 ]
     --: Emptiable (Stacked number_) Possibly
@@ -1091,23 +1091,23 @@ If there is no nearest item, the result is
     Scroll.one 0
         |> Scroll.sideAlter Up
             (\_ -> topBelow 1 [ 2, 3 ])
-        |> Scroll.focusDrag Down
+        |> Scroll.dragFocus Down
     --> Emptiable.empty
 
     Scroll.one 0
         |> Scroll.sideAlter Down
             (\_ -> topBelow 1 [ 2, 3 ])
-        |> Scroll.focusDrag Up
+        |> Scroll.dragFocus Up
     --> Emptiable.empty
 
 -}
-focusDrag :
+dragFocus :
     Linear.Direction
     ->
         (Scroll item FocusGap possiblyOrNever
          -> Emptiable (Scroll item FocusGap possiblyOrNever) Possibly
         )
-focusDrag side_ =
+dragFocus side_ =
     \scroll ->
         (scroll |> side side_)
             |> Emptiable.map filled
@@ -1813,14 +1813,14 @@ If it's an item,
         |> Scroll.sideAlter Up
             (\_ -> topBelow 2 [ 1 ])
         |> Scroll.toGap Up
-        |> Scroll.focusItemTry
+        |> Scroll.focusFilled
     --> Emptiable.empty
 
 -}
-focusItemTry :
+focusFilled :
     Scroll item FocusGap possiblyOrNever
     -> Emptiable (Scroll item FocusGap never_) possiblyOrNever
-focusItemTry =
+focusFilled =
     \scroll ->
         (scroll |> focus)
             |> Emptiable.map

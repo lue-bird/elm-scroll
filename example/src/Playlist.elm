@@ -167,7 +167,7 @@ update event model =
             { model
                 | playlist =
                     model.playlist
-                        |> mapFlat (Scroll.focusDrag side)
+                        |> mapFlat (Scroll.dragFocus side)
             }
 
 
