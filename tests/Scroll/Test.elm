@@ -4,7 +4,6 @@ import Emptiable exposing (Emptiable, filled)
 import Expect exposing (Expectation)
 import Fuzz exposing (Fuzzer)
 import Linear exposing (Direction(..))
-import Possibly exposing (Possibly)
 import Scroll exposing (FocusGap, Scroll)
 import Stack exposing (Stacked, removeTop, top)
 import Test exposing (Test, describe, test)
@@ -27,7 +26,7 @@ mirrorTest : Test
 mirrorTest =
     describe "mirror"
         [ Test.fuzz
-            (scrollFuzz Fuzz.int)
+            (Scroll.fuzz Fuzz.int)
             "(mirror >> mirror) = identity"
             (\scroll ->
                 scroll
@@ -211,23 +210,3 @@ sideFuzz =
         [ Down |> Fuzz.constant
         , Up |> Fuzz.constant
         ]
-
-
-scrollFuzz : Fuzzer item -> Fuzzer (Scroll item FocusGap Possibly)
-scrollFuzz itemFuzz =
-    Fuzz.constant
-        (\before focusOnly after ->
-            focusOnly
-                |> Scroll.sideAlter Down
-                    (\_ -> before)
-                |> Scroll.sideAlter Up
-                    (\_ -> after)
-        )
-        |> Fuzz.andMap (Stack.fuzz itemFuzz)
-        |> Fuzz.andMap
-            (Fuzz.oneOf
-                [ Scroll.empty |> Fuzz.constant
-                , itemFuzz |> Fuzz.map Scroll.one
-                ]
-            )
-        |> Fuzz.andMap (Stack.fuzz itemFuzz)

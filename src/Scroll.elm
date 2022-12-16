@@ -2,6 +2,7 @@ module Scroll exposing
     ( Scroll(..), FocusGap(..)
     , Location(..), nearest
     , empty, one
+    , fuzz, focusFilledFuzz
     , focusItem, focus
     , side
     , length
@@ -40,6 +41,7 @@ Not what you were looking for? Check out [alternatives](#alternatives)
 ## create
 
 @docs empty, one
+@docs fuzz, focusFilledFuzz
 
 
 ## scan
@@ -103,6 +105,7 @@ Not what you were looking for? Check out [alternatives](#alternatives)
 -}
 
 import Emptiable exposing (Emptiable(..), emptyAdapt, fill, filled)
+import Fuzz exposing (Fuzzer)
 import Linear exposing (Direction(..))
 import Possibly exposing (Possibly(..))
 import Stack exposing (Stacked, onTopLay, removeTop, top)
@@ -141,13 +144,14 @@ stops the compiler from creating a constructor function for `Model`
 
 -}
 type Scroll item focusGapTag possiblyOrNever
-    = BeforeFocusAfter
-        (Emptiable (Stacked item) Possibly)
-        (Emptiable item possiblyOrNever)
-        (Emptiable
-            (Stacked item)
-            Possibly
-        )
+    = Scroll
+        { before : Emptiable (Stacked item) Possibly
+        , focus : Emptiable item possiblyOrNever
+        , after :
+            Emptiable
+                (Stacked item)
+                Possibly
+        }
 
 
 {-| A word in every [`Scroll`](#Scroll) type:
@@ -255,7 +259,11 @@ It's the loneliest of all [`Scroll`](#Scroll)s
 -}
 empty : Scroll item_ FocusGap Possibly
 empty =
-    BeforeFocusAfter Emptiable.empty Emptiable.empty Emptiable.empty
+    Scroll
+        { before = Emptiable.empty
+        , focus = Emptiable.empty
+        , after = Emptiable.empty
+        }
 
 
 {-| A `Scroll` with a single focussed item in it,
@@ -276,7 +284,86 @@ nothing `Down` and `Up` it
 -}
 one : element -> Scroll element FocusGap never_
 one currentItem =
-    BeforeFocusAfter Emptiable.empty (filled currentItem) Emptiable.empty
+    Scroll
+        { before = Emptiable.empty
+        , after = Emptiable.empty
+        , focus = filled currentItem
+        }
+
+
+{-| `Scroll item FocusGap Possibly`
+[`Fuzzer`](https://dark.elm.dmy.fr/packages/elm-explorations/test/latest/Fuzz#Fuzzer)
+with a given `item` `Fuzzer`.
+
+Each side's generated length will be <= 32, The focus is either filled or not
+
+    import Linear exposing (Direction(..))
+    import Stack exposing (topBelow)
+    import Fuzz
+
+    Scroll.fuzz (Fuzz.intRange 0 9) |> Fuzz.examples 2
+    --> [ Scroll.one 6
+    -->     |> Scroll.sideAlter Down (\_ -> topBelow 0 [ 1, 6, 0, 5, 1, 7, 8, 8, 0, 5, 4, 9, 4, 9, 3, 7, 0, 3, 6, 4 ])
+    -->     |> Scroll.sideAlter Up (\_ -> topBelow 5 [ 9 ])
+    --> , Scroll.empty
+    -->     |> Scroll.sideAlter Down (\_ -> topBelow 3 [ 9, 7, 5, 0, 3 ])
+    -->     |> Scroll.sideAlter Up (\_ -> topBelow 8 [ 4, 5, 6, 9, 6, 0, 6, 4, 3, 8, 0, 5, 4 ])
+    --> ]
+
+To always fuzz the focus as filled → [`focusFilledFuzz`](#focusFilledFuzz)
+
+-}
+fuzz : Fuzzer item -> Fuzzer (Scroll item FocusGap Possibly)
+fuzz itemFuzz =
+    Fuzz.constant
+        (\before focus_ after ->
+            Scroll
+                { before = before
+                , focus = focus_
+                , after = after
+                }
+        )
+        |> Fuzz.andMap (Stack.fuzz itemFuzz)
+        |> Fuzz.andMap (Emptiable.fuzz itemFuzz)
+        |> Fuzz.andMap (Stack.fuzz itemFuzz)
+
+
+{-| `Scroll item FocusGap never_`
+[`Fuzzer`](https://dark.elm.dmy.fr/packages/elm-explorations/test/latest/Fuzz#Fuzzer)
+with a given `item` `Fuzzer`.
+
+Each side's generated length will be <= 32, The focus is always filled
+
+    import Linear exposing (Direction(..))
+    import Stack exposing (topBelow)
+    import Fuzz
+
+    Scroll.focusFilledFuzz (Fuzz.intRange 0 9)
+        |> Fuzz.examples 2
+    --> [ Scroll.one 5
+    -->     |> Scroll.sideAlter Down (\_ -> topBelow 6 [ 7, 7, 5, 4, 1, 3, 9, 4, 0, 8, 8, 8, 5, 7, 9, 9 ])
+    -->     |> Scroll.sideAlter Up (\_ -> topBelow 5 [ 9 ])
+    --> , Scroll.one 5
+    -->     |> Scroll.sideAlter Down (\_ -> topBelow 9 [ 9, 6, 4, 4, 9, 8, 0, 5, 1, 2, 2, 5, 9, 9, 3, 0 ])
+    -->     |> Scroll.sideAlter Up (\_ -> topBelow 2 [ 7, 8 ])
+    --> ]
+
+To only sometimes fuzz the focus as filled → [`fuzz`](#fuzz)
+
+-}
+focusFilledFuzz : Fuzzer item -> Fuzzer (Scroll item FocusGap never_)
+focusFilledFuzz itemFuzz =
+    Fuzz.constant
+        (\before focusItem_ after ->
+            Scroll
+                { before = before
+                , focus = focusItem_ |> filled
+                , after = after
+                }
+        )
+        |> Fuzz.andMap (Stack.fuzz itemFuzz)
+        |> Fuzz.andMap itemFuzz
+        |> Fuzz.andMap (Stack.fuzz itemFuzz)
 
 
 
@@ -330,7 +417,7 @@ focus :
     Scroll item FocusGap possiblyOrNever
     -> Emptiable item possiblyOrNever
 focus =
-    \(BeforeFocusAfter _ focus_ _) -> focus_
+    \(Scroll scroll) -> scroll.focus
 
 
 {-| The [stack](https://dark.elm.dmy.fr/packages/lue-bird/elm-emptiness-typed/latest/Stack)
@@ -378,17 +465,13 @@ side :
          -> Emptiable (Stacked item) Possibly
         )
 side sideToAccess =
-    \scroll ->
-        let
-            (BeforeFocusAfter sideBefore _ sideAfter) =
-                scroll
-        in
+    \(Scroll scroll) ->
         case sideToAccess of
             Down ->
-                sideBefore
+                scroll.before
 
             Up ->
-                sideAfter
+                scroll.after
 
 
 {-| Counting all contained items
@@ -417,16 +500,16 @@ side sideToAccess =
 -}
 length : Scroll item_ FocusGap possiblyOrNever_ -> Int
 length =
-    \(BeforeFocusAfter before focus_ after) ->
-        (before |> Stack.length)
-            + (case focus_ of
+    \(Scroll scroll) ->
+        (scroll.before |> Stack.length)
+            + (case scroll.focus of
                 Filled _ ->
                     1
 
                 Empty _ ->
                     0
               )
-            + (after |> Stack.length)
+            + (scroll.after |> Stack.length)
 
 
 
@@ -463,10 +546,10 @@ toItemNearest side_ =
                     in
                     case side_ of
                         Down ->
-                            BeforeFocusAfter sideNew focusNew sideOppositeNew
+                            Scroll { before = sideNew, focus = focusNew, after = sideOppositeNew }
 
                         Up ->
-                            BeforeFocusAfter sideOppositeNew focusNew sideNew
+                            Scroll { before = sideOppositeNew, focus = focusNew, after = sideNew }
                 )
 
 
@@ -708,19 +791,23 @@ toGap :
          -> Scroll item FocusGap Possibly
         )
 toGap side_ =
-    \(BeforeFocusAfter before focus_ after) ->
+    \(Scroll scroll) ->
         case side_ of
             Down ->
-                BeforeFocusAfter
-                    before
-                    Emptiable.empty
-                    (after |> onTopLay (focus_ |> fill))
+                Scroll
+                    { before = scroll.before
+                    , focus = Emptiable.empty
+                    , after =
+                        scroll.after |> onTopLay (scroll.focus |> fill)
+                    }
 
             Up ->
-                BeforeFocusAfter
-                    (before |> onTopLay (focus_ |> fill))
-                    Emptiable.empty
-                    after
+                Scroll
+                    { before =
+                        scroll.before |> onTopLay (scroll.focus |> fill)
+                    , focus = Emptiable.empty
+                    , after = scroll.after
+                    }
 
 
 {-| Focus the furthest item [`Down/Up`](https://dark.elm.dmy.fr/packages/lue-bird/elm-linear-direction/latest/) the focus
@@ -790,16 +877,18 @@ toEnd end =
             Filled stackFilled ->
                 case end of
                     Down ->
-                        BeforeFocusAfter
-                            Emptiable.empty
-                            (stackFilled |> Stack.top |> filled)
-                            (stackFilled |> Stack.removeTop)
+                        Scroll
+                            { before = Emptiable.empty
+                            , focus = stackFilled |> Stack.top |> filled
+                            , after = stackFilled |> Stack.removeTop
+                            }
 
                     Up ->
-                        BeforeFocusAfter
-                            (stackFilled |> Stack.removeTop)
-                            (stackFilled |> Stack.top |> filled)
-                            Emptiable.empty
+                        Scroll
+                            { before = stackFilled |> Stack.removeTop
+                            , focus = stackFilled |> Stack.top |> filled
+                            , after = Emptiable.empty
+                            }
 
 
 {-| Focus the gap beyond the furthest item [`Down|Up`](https://dark.elm.dmy.fr/packages/lue-bird/elm-linear-direction/latest/).
@@ -860,23 +949,25 @@ toEndGap side_ =
     \scroll ->
         case side_ of
             Down ->
-                BeforeFocusAfter
-                    Emptiable.empty
-                    Emptiable.empty
-                    (scroll
-                        |> toStack
-                        |> emptyAdapt (\_ -> Possible)
-                    )
+                Scroll
+                    { before = Emptiable.empty
+                    , focus = Emptiable.empty
+                    , after =
+                        scroll
+                            |> toStack
+                            |> emptyAdapt (\_ -> Possible)
+                    }
 
             Up ->
-                BeforeFocusAfter
-                    (scroll
-                        |> mirror
-                        |> toStack
-                        |> emptyAdapt (\_ -> Possible)
-                    )
-                    Emptiable.empty
-                    Emptiable.empty
+                Scroll
+                    { before =
+                        scroll
+                            |> mirror
+                            |> toStack
+                            |> emptyAdapt (\_ -> Possible)
+                    , focus = Emptiable.empty
+                    , after = Emptiable.empty
+                    }
 
 
 {-| Move the focus to the nearest item [`Down|Up`](https://dark.elm.dmy.fr/packages/lue-bird/elm-linear-direction/latest/)
@@ -933,10 +1024,11 @@ toWhere ( side_, isFound ) =
                 case scroll |> focus of
                     Filled currentItem ->
                         if currentItem |> isFound { index = index } then
-                            BeforeFocusAfter
-                                (scroll |> side Down)
-                                (filled currentItem)
-                                (scroll |> side Up)
+                            Scroll
+                                { before = scroll |> side Down
+                                , focus = filled currentItem
+                                , after = scroll |> side Up
+                                }
                                 |> filled
 
                         else
@@ -1023,20 +1115,24 @@ focusDrag side_ =
                             (scroll |> side (side_ |> Linear.opposite))
                                 |> onTopLay (stackFilled |> top)
 
-                        focus_ : Emptiable item possiblyOrNever
-                        focus_ =
-                            scroll |> focus
-
                         sideNew : Emptiable (Stacked item) Possibly
                         sideNew =
                             stackFilled |> removeTop
                     in
                     case side_ of
                         Down ->
-                            BeforeFocusAfter sideNew focus_ sideOppositeNew
+                            Scroll
+                                { before = sideNew
+                                , focus = scroll |> focus
+                                , after = sideOppositeNew
+                                }
 
                         Up ->
-                            BeforeFocusAfter sideOppositeNew focus_ sideNew
+                            Scroll
+                                { before = sideOppositeNew
+                                , focus = scroll |> focus
+                                , after = sideNew
+                                }
                 )
 
 
@@ -1261,6 +1357,12 @@ on the [`side Up`](#side)
             (\_ -> topBelow 2 [ 3, 4 ])
         |> Scroll.sideAlter Down
             (\_ -> topBelow 4 [ 3, 2 ])
+        |> Scroll.mirror
+    --> Scroll.one 1
+    -->     |> Scroll.sideAlter Down
+    -->         (\_ -> topBelow 2 [ 3, 4 ])
+    -->     |> Scroll.sideAlter Up
+    -->         (\_ -> topBelow 4 [ 3, 2 ])
 
 In contrast to `List` or [stack](https://dark.elm.dmy.fr/packages/lue-bird/elm-emptiness-typed/latest/Stack),
 runtime is `O(1)`
@@ -1270,8 +1372,12 @@ mirror :
     Scroll item FocusGap possiblyOrNever
     -> Scroll item FocusGap possiblyOrNever
 mirror =
-    \(BeforeFocusAfter before_ focus_ after_) ->
-        BeforeFocusAfter after_ focus_ before_
+    \(Scroll scroll) ->
+        Scroll
+            { focus = scroll.focus
+            , before = scroll.after
+            , after = scroll.before
+            }
 
 
 
@@ -1531,18 +1637,19 @@ based on its current value
 -}
 focusAlter :
     (Emptiable item possiblyOrNever
-     -> Emptiable item possiblyOrNeverAltered
+     -> Emptiable item alteredPossiblyOrNever
     )
     ->
         (Scroll item FocusGap possiblyOrNever
-         -> Scroll item FocusGap possiblyOrNeverAltered
+         -> Scroll item FocusGap alteredPossiblyOrNever
         )
 focusAlter focusHandAlter =
-    \(BeforeFocusAfter before focus_ after) ->
-        BeforeFocusAfter
-            before
-            (focus_ |> focusHandAlter)
-            after
+    \(Scroll scroll) ->
+        Scroll
+            { before = scroll.before
+            , focus = scroll.focus |> focusHandAlter
+            , after = scroll.after
+            }
 
 
 {-| Change the [`focus`](#focus),
@@ -1605,17 +1712,18 @@ focusSidesMap :
          -> Scroll mappedItem FocusGap possiblyOrNeverMapped
         )
 focusSidesMap changeFocusAndSideStacks =
-    \(BeforeFocusAfter sideBefore focus_ sideAfter) ->
-        BeforeFocusAfter
-            (sideBefore
-                |> changeFocusAndSideStacks.side Down
-                |> emptyAdapt (\_ -> Possible)
-            )
-            (focus_ |> changeFocusAndSideStacks.focus)
-            (sideAfter
-                |> changeFocusAndSideStacks.side Up
-                |> emptyAdapt (\_ -> Possible)
-            )
+    \(Scroll scroll) ->
+        Scroll
+            { before =
+                scroll.before
+                    |> changeFocusAndSideStacks.side Down
+                    |> emptyAdapt (\_ -> Possible)
+            , focus = scroll.focus |> changeFocusAndSideStacks.focus
+            , after =
+                scroll.after
+                    |> changeFocusAndSideStacks.side Up
+                    |> emptyAdapt (\_ -> Possible)
+            }
 
 
 {-| Converts it to a `List`, rolled out to both ends:
