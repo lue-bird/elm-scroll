@@ -3,7 +3,7 @@ module Scroll exposing
     , Location(..), nearest
     , empty, one
     , fuzz, focusFilledFuzz
-    , focusItem, focus
+    , focusFill, focus
     , side
     , length
     , to, toGap
@@ -46,7 +46,7 @@ Not what you were looking for? Check out [alternatives](#alternatives)
 
 ## scan
 
-@docs focusItem, focus
+@docs focusFill, focus
 @docs side
 @docs length
 
@@ -184,7 +184,7 @@ type FocusGap
         |> Scroll.sideAlter Up
             (\_ -> topBelow 1 [ 2, 3 ])
         |> Scroll.to (Scroll.AtSide Up 2)
-        |> Emptiable.map Scroll.focusItem
+        |> Emptiable.map Scroll.focusFill
     --> filled 3
     --: Emptiable (Stacked number_) Possibly
 
@@ -207,7 +207,7 @@ type Location
             (\_ -> topBelow "scrollable" [ "world" ])
         |> Scroll.toEnd Up
         |> Scroll.to (Down |> Scroll.nearest)
-        |> Emptiable.map Scroll.focusItem
+        |> Emptiable.map Scroll.focusFill
     --> filled "scrollable"
     --: Emptiable (Scroll String FocusGap Never) Possibly
 
@@ -275,7 +275,7 @@ nothing `Down` and `Up` it
 
     import Stack
 
-    Scroll.one "wat" |> Scroll.focusItem
+    Scroll.one "wat" |> Scroll.focusFill
     --> "wat"
 
     Scroll.one "wat" |> Scroll.toStack
@@ -376,22 +376,29 @@ focusFilledFuzz itemFuzz =
 🍍 🍓 <🍊> 🍉 🍇  ->  🍊
 ```
 
-    import Stack exposing (topBelow)
     import Linear exposing (Direction(..))
+    import Stack exposing (topBelow)
 
-    Scroll.one "hi there" |> Scroll.focusItem
+    Scroll.one "hi there" |> Scroll.focusFill
     --> "hi there"
 
     Scroll.one 1
         |> Scroll.sideAlter Up
             (\_ -> topBelow 2 [ 3, 4 ])
         |> Scroll.toEnd Up
-        |> Scroll.focusItem
+        |> Scroll.focusFill
     --> 4
 
+Short for
+
+    import Emptiable
+
+    Scroll.focusFill =
+        Scroll.focus >> Emptiable.fill
+
 -}
-focusItem : Scroll item FocusGap Never -> item
-focusItem =
+focusFill : Scroll item FocusGap Never -> item
+focusFill =
     \scroll -> scroll |> focus |> Emptiable.fill
 
 
@@ -410,7 +417,7 @@ focusItem =
     Scroll.one "hi there" |> Scroll.focus |> fill
     --> "hi there"
 
-[`focusItem`](#focusItem) is short for `focus |> fill`
+[`focusFill`](#focusFill) is short for `focus |> fill`
 
 -}
 focus :
@@ -574,7 +581,7 @@ toItemNearest side_ =
             (\_ -> topBelow "scrollable" [ "world" ])
         |> Scroll.toEnd Up
         |> Scroll.to (Down |> Scroll.nearest)
-        |> Emptiable.map Scroll.focusItem
+        |> Emptiable.map Scroll.focusFill
     --> filled "scrollable"
     --: Emptiable (Scroll String FocusGap Never) Possibly
 
@@ -611,7 +618,7 @@ This also works from within gaps:
         |> Scroll.sideAlter Up
             (\_ -> topBelow 1 [ 2, 3 ])
         |> Scroll.to (Up |> Scroll.nearest)
-        |> Emptiable.map Scroll.focusItem
+        |> Emptiable.map Scroll.focusFill
     --> filled 1
     --: Emptiable number_ Possibly
 
@@ -834,14 +841,14 @@ toGap side_ =
         |> Scroll.sideAlter Down
             (\_ -> topBelow 4 [ 3, 2 ])
         |> Scroll.toEnd Down
-        |> Scroll.focusItem
+        |> Scroll.focusFill
     --> 2
 
     Scroll.one 1
         |> Scroll.sideAlter Up
             (\_ -> topBelow 2 [ 3, 4 ])
         |> Scroll.toEnd Up
-        |> Scroll.focusItem
+        |> Scroll.focusFill
     --> 4
 
     Scroll.one 1
@@ -984,21 +991,21 @@ If no such item was found,
         |> Scroll.sideAlter Down
             (\_ -> topBelow 2 [ -1, 0, 3 ])
         |> Scroll.toWhere ( Down, \_ item -> item < 0 )
-        |> Emptiable.map Scroll.focusItem
+        |> Emptiable.map Scroll.focusFill
     --> filled -1
 
     Scroll.one 4
         |> Scroll.sideAlter Up
             (\_ -> topBelow 2 [ -1, 0, 3 ])
         |> Scroll.toWhere ( Up, \_ item -> item < 0 )
-        |> Emptiable.map focusItem
+        |> Emptiable.map focusFill
     --> filled -1
 
     Scroll.one -4
         |> Scroll.sideAlter Up
             (\_ -> topBelow 2 [ -1, 0, 3 ])
         |> Scroll.toWhere ( Up, \_ item -> item < 0 )
-        |> Emptiable.map focusItem
+        |> Emptiable.map focusFill
     --> filled -4
 
 -}
@@ -1482,7 +1489,7 @@ foldFromOne endInitialToAccumulator direction reduce =
             |> Stack.foldFrom
                 (scroll
                     |> side (direction |> Linear.opposite)
-                    |> onTopLay (scroll |> focusItem)
+                    |> onTopLay (scroll |> focusFill)
                     |> Stack.foldFromOne endInitialToAccumulator
                         direction
                         reduce

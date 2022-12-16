@@ -213,7 +213,7 @@ interface =
                 "playing: silence (the original)" |> Ui.text
 
             Filled playlistFilled ->
-                playlistFilled |> Scroll.focusItem |> trackInterface
+                playlistFilled |> Scroll.focusFill |> trackInterface
           )
             |> Ui.el
                 [ Ui.width Ui.fill

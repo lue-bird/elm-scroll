@@ -102,7 +102,7 @@ update event eventScroll =
             let
                 next =
                     eventScroll
-                        |> Scroll.focusItem
+                        |> Scroll.focusFill
                         |> countersUpdate countersEvent
             in
             -- Adding the next state
@@ -119,7 +119,7 @@ interface : Model -> Html Event
 interface =
     \eventScroll ->
         [ eventScroll
-            |> Scroll.focusItem
+            |> Scroll.focusFill
             |> countersInterface
             |> Ui.map CountersChanged
         , eventScroll
