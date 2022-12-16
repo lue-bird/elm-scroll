@@ -396,7 +396,8 @@ Short for
 -}
 focusFill : Scroll item FocusGap Never -> item
 focusFill =
-    \scroll -> scroll |> focus |> Emptiable.fill
+    \scroll ->
+        scroll |> focus |> Emptiable.fill
 
 
 {-| The focused item or gap
@@ -469,13 +470,12 @@ side :
          -> Emptiable (Stacked item) Possibly
         )
 side sideToAccess =
-    \(Scroll scroll) ->
-        case sideToAccess of
-            Down ->
-                scroll.before
+    case sideToAccess of
+        Down ->
+            \(Scroll scroll) -> scroll.before
 
-            Up ->
-                scroll.after
+        Up ->
+            \(Scroll scroll) -> scroll.after
 
 
 {-| Counting all contained items
@@ -533,7 +533,8 @@ toItemNearest :
         )
 toItemNearest side_ =
     \scroll ->
-        (scroll |> side side_)
+        scroll
+            |> side side_
             |> Emptiable.map
                 (\stacked ->
                     let
@@ -544,7 +545,8 @@ toItemNearest side_ =
                             stacked |> filled |> top |> filled
 
                         sideOppositeNew =
-                            (scroll |> side (side_ |> Linear.opposite))
+                            scroll
+                                |> side (side_ |> Linear.opposite)
                                 |> Stack.attach Down
                                     (scroll |> focus |> Emptiable.mapFlat Stack.one)
                     in
@@ -738,14 +740,15 @@ to location =
                         scroll |> toItemNearest side_
 
                     sideIndexNot0 ->
-                        if sideIndexNot0 >= 1 then
+                        if sideIndexNot0 <= -1 then
+                            Emptiable.empty
+
+                        else
+                            -- sideIndexNot0 >= 1
                             scroll
                                 |> toItemNearest side_
                                 |> Emptiable.mapFlat
                                     (to (AtSide side_ (sideIndex - 1)))
-
-                        else
-                            Emptiable.empty
 
 
 {-| Move the focus to the gap directly [`Down|Up`](https://dark.elm.dmy.fr/packages/lue-bird/elm-linear-direction/latest/).
@@ -1019,8 +1022,7 @@ toWhen side_ isFound =
             \scroll ->
                 scroll
                     |> toItemNearest side_
-                    |> Emptiable.mapFlat
-                        (toWhenFrom next)
+                    |> Emptiable.mapFlat (toWhenFrom next)
 
         toWhenFrom { index } =
             \scroll ->
