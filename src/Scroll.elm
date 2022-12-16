@@ -333,7 +333,9 @@ focus =
     \(BeforeFocusAfter _ focus_ _) -> focus_
 
 
-{-| The [`Stack`](Stack) to one [side](https://dark.elm.dmy.fr/packages/lue-bird/elm-linear-direction/latest/) of the focus
+{-| The [stack](https://dark.elm.dmy.fr/packages/lue-bird/elm-emptiness-typed/latest/Stack)
+to one [side](https://dark.elm.dmy.fr/packages/lue-bird/elm-linear-direction/latest/)
+of the focus
 
 `Down`
 
@@ -548,7 +550,8 @@ This also works from within gaps:
     --> filled (Scroll.one "foo")
     --: Emptiable (Scroll String FocusGap Never) Possibly
 
-If there is no next item, the result is [`empty`](Emptiable#empty)
+If there is no next item,
+the result is [`empty`](https://dark.elm.dmy.fr/packages/lue-bird/elm-emptiness-typed/latest/Emptiable#empty)
 
     import Linear exposing (Direction(..))
     import Emptiable
@@ -876,8 +879,10 @@ toEndGap side_ =
                     Emptiable.empty
 
 
-{-| Move the focus to the nearest item [`Down|Up`](https://dark.elm.dmy.fr/packages/lue-bird/elm-linear-direction/latest/) that matches a predicate.
-If no such item was found return with [`Emptiable.empty`](Emptiable#empty)
+{-| Move the focus to the nearest item [`Down|Up`](https://dark.elm.dmy.fr/packages/lue-bird/elm-linear-direction/latest/)
+that matches a predicate.
+If no such item was found,
+[`Emptiable.empty`](https://dark.elm.dmy.fr/packages/lue-bird/elm-emptiness-typed/latest/Emptiable#empty)
 
     import Linear exposing (Direction(..))
     import Emptiable exposing (filled)
@@ -980,7 +985,8 @@ toWhere ( side_, isFound ) =
     --> topBelow 1 [ 0, 2, 3 ]
     --: Emptiable (Stacked number_) Possibly
 
-If there is no nearest item, the result is [`empty`](Emptiable#empty)
+If there is no nearest item, the result is
+[`empty`](https://dark.elm.dmy.fr/packages/lue-bird/elm-emptiness-typed/latest/Emptiable#empty)
 
     import Linear exposing (Direction(..))
     import Emptiable
@@ -1039,7 +1045,9 @@ focusDrag side_ =
 
 
 {-| Look [`Down|Up`](https://dark.elm.dmy.fr/packages/lue-bird/elm-linear-direction/latest/)
-the [`focus`](#focus) and operate directly an the [`Stack`](Stack) you see
+the [`focus`](#focus) and operate directly
+an the [stack](https://dark.elm.dmy.fr/packages/lue-bird/elm-emptiness-typed/latest/Stack)
+you see
 
 
 #### `sideAlter Linear.Direction (\_ -> 🍒🍋)`
@@ -1173,7 +1181,7 @@ and slide items in directly at the nearest location
     --> topBelow 123 [ 456, 789, 0 ]
 
 
-#### `sideAlter Linear.Direction (`[`Stack.onTopLay`](Stack#onTopLay) `...)`
+#### `sideAlter Linear.Direction (`[`Stack.onTopLay`](https://dark.elm.dmy.fr/packages/lue-bird/elm-emptiness-typed/latest/Stack#onTopLay) `...)`
 
 `Down`
 
@@ -1236,8 +1244,10 @@ sideAlter sideFaced sideStackAlter =
                 }
 
 
-{-| Swap the [stack](Stack) on the [`side Down`](#side) the [`focus`](#focus)
-with the [stack](Stack) on the [`side Up`](#side)
+{-| Swap the [stack](https://dark.elm.dmy.fr/packages/lue-bird/elm-emptiness-typed/latest/Stack)
+on the [`side Down`](#side) the [`focus`](#focus)
+with the [stack](https://dark.elm.dmy.fr/packages/lue-bird/elm-emptiness-typed/latest/Stack)
+on the [`side Up`](#side)
 
 ```monospace
 🍓 <🍊> 🍉 🍇  <->  🍇 🍉 <🍊> 🍓
@@ -1252,7 +1262,8 @@ with the [stack](Stack) on the [`side Up`](#side)
         |> Scroll.sideAlter Down
             (\_ -> topBelow 4 [ 3, 2 ])
 
-In contrast to `List` or [stack](Stack), this can be done in `O(1)` time
+In contrast to `List` or [stack](https://dark.elm.dmy.fr/packages/lue-bird/elm-emptiness-typed/latest/Stack),
+runtime is `O(1)`
 
 -}
 mirror :
@@ -1436,7 +1447,9 @@ foldFrom accumulationValueInitial direction reduce =
                 reduce
 
 
-{-| Alter the focus – [item or gap](Emptiable) – based on its current value
+{-| Alter the focus
+– [item or gap](https://dark.elm.dmy.fr/packages/lue-bird/elm-emptiness-typed/latest/Emptiable) –
+based on its current value
 
 
 #### `Scroll.focusAlter (\_ -> 🍊 |> filled)`
@@ -1630,7 +1643,8 @@ toList =
             |> Stack.toList
 
 
-{-| Roll out the `Scroll` to both ends into a [`Stack`](Stack):
+{-| Roll out the [`Scroll`](#Scroll) to both ends
+into a [`Stack`](https://dark.elm.dmy.fr/packages/lue-bird/elm-emptiness-typed/latest/Stack)
 
     import Linear exposing (Direction(..))
     import Emptiable exposing (filled)
@@ -1674,8 +1688,10 @@ toStack =
 --
 
 
-{-| [`Emptiable.empty`](Emptiable#empty) if the current focussed thing is a gap,
-[`Emptiable.filled`](Emptiable#filled) if it's an item
+{-| If the current focussed thing is a gap,
+[`Emptiable.empty`](https://dark.elm.dmy.fr/packages/lue-bird/elm-emptiness-typed/latest/Emptiable#empty).
+If it's an item,
+[`Emptiable.filled`](https://dark.elm.dmy.fr/packages/lue-bird/elm-emptiness-typed/latest/Emptiable#filled)
 
     import Emptiable
     import Stack exposing (topBelow)
@@ -1719,7 +1735,8 @@ focusItemTry =
 
         Scroll.focusGapAdapt never
 
-Please read more at [`Emptiable.emptyAdapt`](Emptiable#emptyAdapt)
+Please read more
+at [`Emptiable.emptyAdapt`](https://dark.elm.dmy.fr/packages/lue-bird/elm-emptiness-typed/latest/Emptiable#emptyAdapt)
 
 -}
 focusGapAdapt :
