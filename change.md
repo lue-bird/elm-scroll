@@ -5,4 +5,4 @@ moved `Scroll` from `emptiness-typed`
 
   - `only` name → `one`
   - `foldOnto` name → `foldFromOne`
-
+  - variant `FocusGap Never` expose

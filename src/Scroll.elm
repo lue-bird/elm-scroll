@@ -1,5 +1,5 @@
 module Scroll exposing
-    ( Scroll(..), FocusGap
+    ( Scroll(..), FocusGap(..)
     , Location(..), nearest
     , empty, one
     , focusItem, focus
