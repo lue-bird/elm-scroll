@@ -140,7 +140,7 @@ where [`RecordWithoutConstructorFunction`](https://dark.elm.dmy.fr/packages/lue-
 stops the compiler from creating a constructor function for `Model`
 
 -}
-type Scroll item focusedOnGapTag possiblyOrNever
+type Scroll item focusGapTag possiblyOrNever
     = BeforeFocusAfter
         (Emptiable (Stacked item) Possibly)
         (Emptiable item possiblyOrNever)
@@ -163,7 +163,7 @@ type Scroll item focusedOnGapTag possiblyOrNever
 
 -}
 type FocusGap
-    = FocusedOnGapTag Never
+    = FocusGap Never
 
 
 
