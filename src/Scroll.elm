@@ -139,8 +139,8 @@ import Stack exposing (Stacked, onTopLay, removeTop, top)
             { choice : Scroll Option FocusGap Never
             }
 
-where [`RecordWithoutConstructorFunction`](https://dark.elm.dmy.fr/packages/lue-bird/elm-no-record-type-alias-constructor-function/latest/)
-stops the compiler from creating a constructor function for `Model`
+(where [`RecordWithoutConstructorFunction`](https://dark.elm.dmy.fr/packages/lue-bird/elm-no-record-type-alias-constructor-function/latest/)
+stops the compiler from creating a constructor function for `Model`)
 
 -}
 type Scroll item focusGapTag possiblyOrNever
