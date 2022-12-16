@@ -4,7 +4,7 @@
 
 
 → good fit for dynamic choice selection: tabs, playlist, ...
-[↑ examples](https://github.com/lue-bird/elm-emptiness-typed/tree/master/examples)
+[↑ examples](https://github.com/lue-bird/elm-emptiness-typed/tree/master/example)
 
 `Scroll` can even focus a gap
 [`Down` or `Up`](https://dark.elm.dmy.fr/packages/lue-bird/elm-linear-direction/latest/)
