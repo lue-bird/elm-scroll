@@ -8,7 +8,7 @@ module Scroll exposing
     , length
     , to, toGap
     , toEnd, toEndGap
-    , toWhere
+    , toWhen
     , dragFocus
     , mirror
     , focusAlter, sideAlter
@@ -55,7 +55,7 @@ Not what you were looking for? Check out [alternatives](#alternatives)
 
 @docs to, toGap
 @docs toEnd, toEndGap
-@docs toWhere
+@docs toWhen
 @docs dragFocus
 
 
@@ -987,43 +987,42 @@ If no such item was found,
     Scroll.one 4
         |> Scroll.sideAlter Down
             (\_ -> topBelow 2 [ -1, 0, 3 ])
-        |> Scroll.toWhere ( Down, \_ item -> item < 0 )
+        |> Scroll.toWhen Down (\_ item -> item < 0)
         |> Emptiable.map Scroll.focusFill
     --> filled -1
 
     Scroll.one 4
         |> Scroll.sideAlter Up
             (\_ -> topBelow 2 [ -1, 0, 3 ])
-        |> Scroll.toWhere ( Up, \_ item -> item < 0 )
+        |> Scroll.toWhen Up (\_ item -> item < 0)
         |> Emptiable.map focusFill
     --> filled -1
 
     Scroll.one -4
         |> Scroll.sideAlter Up
             (\_ -> topBelow 2 [ -1, 0, 3 ])
-        |> Scroll.toWhere ( Up, \_ item -> item < 0 )
+        |> Scroll.toWhen Up (\_ item -> item < 0)
         |> Emptiable.map focusFill
     --> filled -4
 
 -}
-toWhere :
-    ( Linear.Direction
-    , { index : Int } -> item -> Bool
-    )
+toWhen :
+    Linear.Direction
+    -> ({ index : Int } -> item -> Bool)
     ->
         (Scroll item FocusGap possiblyOrNever_
          -> Emptiable (Scroll item FocusGap never_) Possibly
         )
-toWhere ( side_, isFound ) =
+toWhen side_ isFound =
     let
         scrollToNext next =
             \scroll ->
                 scroll
                     |> toItemNearest side_
                     |> Emptiable.mapFlat
-                        (toWhereFrom next)
+                        (toWhenFrom next)
 
-        toWhereFrom { index } =
+        toWhenFrom { index } =
             \scroll ->
                 case scroll |> focus of
                     Filled currentItem ->
@@ -1041,7 +1040,7 @@ toWhere ( side_, isFound ) =
                     Empty _ ->
                         scroll |> scrollToNext { index = index + 1 }
     in
-    toWhereFrom { index = 0 }
+    toWhenFrom { index = 0 }
 
 
 {-| Try to move the focus to the nearest item
