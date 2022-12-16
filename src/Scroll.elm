@@ -147,10 +147,7 @@ type Scroll item focusGapTag possiblyOrNever
     = Scroll
         { before : Emptiable (Stacked item) Possibly
         , focus : Emptiable item possiblyOrNever
-        , after :
-            Emptiable
-                (Stacked item)
-                Possibly
+        , after : Emptiable (Stacked item) Possibly
         }
 
 
