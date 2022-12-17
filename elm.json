@@ -3,7 +3,7 @@
     "name": "lue-bird/elm-scroll",
     "summary": "items rolled up on both sides of a focus",
     "license": "MIT",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "exposed-modules": [
         "Scroll"
     ],
