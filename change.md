@@ -1,7 +1,11 @@
 # change log
 
-# 1.0.0
-moved `Scroll` from `emptiness-typed`
+#### 1.0.1
+
+  - section alternatives move to readme
+
+## 1.0.0
+move `Scroll` from `emptiness-typed`
 
   - `toWhere ( side, isFound )` → `toWhen side isFound`
       - side is in no way directly related to the find function
