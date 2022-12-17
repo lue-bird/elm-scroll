@@ -1,5 +1,9 @@
 # change log
 
+#### 1.0.2
+
+  - examples link update
+
 #### 1.0.1
 
   - section alternatives move to readme
