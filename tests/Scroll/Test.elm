@@ -112,17 +112,17 @@ focusItemTest =
             (\{ scroll, side } ->
                 scroll
                     |> Scroll.to
-                        (side |> Linear.opposite |> Scroll.nearest)
+                        (side |> Linear.directionOpposite |> Scroll.nearest)
                     |> Expect.equal Emptiable.empty
             )
         , Test.fuzz
             (sideAndScrollFuzz scrollFocusSideFuzz)
-            "`(Scroll.toEndGap Linear.Direction >> Scroll.to (Linear.Direction |> Linear.opposite)) == Scroll.toEnd Linear.Direction`"
+            "`(Scroll.toEndGap Linear.Direction >> Scroll.to (Linear.Direction |> Linear.directionOpposite)) == Scroll.toEnd Linear.Direction`"
             (\{ scroll, side } ->
                 scroll
                     |> Scroll.toEndGap side
                     |> Scroll.to
-                        (side |> Linear.opposite |> Scroll.nearest)
+                        (side |> Linear.directionOpposite |> Scroll.nearest)
                     |> Expect.equal
                         (scroll |> Scroll.toEnd side |> filled)
             )

@@ -521,7 +521,7 @@ toItemNearest side_ =
 
                         sideOppositeNew =
                             scroll
-                                |> side (side_ |> Linear.opposite)
+                                |> side (side_ |> Linear.directionOpposite)
                                 |> Stack.attach Down
                                     (scroll |> focus |> Emptiable.mapFlat Stack.one)
                     in
@@ -1092,7 +1092,7 @@ dragFocus side_ =
                     let
                         sideOppositeNew : Emptiable (Stacked item) Possibly
                         sideOppositeNew =
-                            (scroll |> side (side_ |> Linear.opposite))
+                            (scroll |> side (side_ |> Linear.directionOpposite))
                                 |> onTopLay (stackFilled |> top)
 
                         sideNew : Emptiable (Stacked item) Possibly
@@ -1461,13 +1461,13 @@ foldFromOne endInitialToAccumulator direction reduce =
             |> side direction
             |> Stack.foldFrom
                 (scroll
-                    |> side (direction |> Linear.opposite)
+                    |> side (direction |> Linear.directionOpposite)
                     |> onTopLay (scroll |> focusFill)
                     |> Stack.foldFromOne endInitialToAccumulator
                         direction
                         reduce
                 )
-                (direction |> Linear.opposite)
+                (direction |> Linear.directionOpposite)
                 reduce
 
 
@@ -1524,7 +1524,7 @@ foldFrom accumulationValueInitial direction reduce =
                )
             |> Stack.foldFrom
                 (scroll
-                    |> side (direction |> Linear.opposite)
+                    |> side (direction |> Linear.directionOpposite)
                     |> Stack.foldFrom accumulationValueInitial
                         Down
                         reduce
