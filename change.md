@@ -1,5 +1,9 @@
 # change log
 
+#### 1.0.3
+
+  - `linear-direction` → >= 11.0.0
+
 #### 1.0.2
 
   - examples link update
