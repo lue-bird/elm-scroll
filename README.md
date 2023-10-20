@@ -50,6 +50,8 @@ Scroll.empty
     navigation works; a bit cluttered; no `map (Location -> ...)`, `sideAlter` (so no squeezing in multiple items, ...)
   - [wernerdegroot/listzipper](https://dark.elm.dmy.fr/packages/wernerdegroot/listzipper/latest/List-Zipper)
     navigation works; no `dragFocus`, `map (Location -> ...)`, `toNonEmptyList`
+  - [stoeffel/list-focus](https://package.elm-lang.org/packages/stoeffel/list-focus/1.0.0/)
+    no clutter included but also no access of before and after, no `length`, `toList`, `map (Location -> ...)`, `toNonEmptyList`
   - [alexanderkiel/list-selection](https://dark.elm.dmy.fr/packages/alexanderkiel/list-selection/latest/List-Selection)
     & [NoRedInk/list-selection](https://dark.elm.dmy.fr/packages/NoRedInk/list-selection/latest/List-Selection)
     very incomplete, impossible to extract focused item safely; no navigation, insertion, `side`, ...
