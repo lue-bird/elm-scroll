@@ -1,5 +1,9 @@
 # change log
 
+#### 1.0.4
+
+  - readme "alternatives" section mentions `stoeffel/list-focus`
+
 #### 1.0.3
 
   - `linear-direction` → >= 11.0.0
