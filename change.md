@@ -2,7 +2,7 @@
 
 #### 1.0.5
 
-  - readme "alternatives" section: update to STTR13/ziplist to staeter/ziplist
+  - readme "alternatives" section: update STTR13/ziplist to staeter/ziplist
 
 #### 1.0.4
 
