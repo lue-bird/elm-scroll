@@ -46,7 +46,7 @@ Scroll.empty
     complete; a bit cluttered; no `focusWhere`
   - [yotamDvir/elm-pivot](https://dark.elm.dmy.fr/packages/yotamDvir/elm-pivot/latest/)
     complete; cluttered; no `map (Location -> ...)`
-  - [STTR13/ziplist](https://dark.elm.dmy.fr/packages/STTR13/ziplist/latest/)
+  - [staeter/ziplist](https://dark.elm.dmy.fr/packages/staeter/ziplist/latest/)
     navigation works; a bit cluttered; no `map (Location -> ...)`, `sideAlter` (so no squeezing in multiple items, ...)
   - [wernerdegroot/listzipper](https://dark.elm.dmy.fr/packages/wernerdegroot/listzipper/latest/List-Zipper)
     navigation works; no `dragFocus`, `map (Location -> ...)`, `toNonEmptyList`
